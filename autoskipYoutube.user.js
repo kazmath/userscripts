@@ -9,8 +9,8 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=youtube.com
 // @run-at       document-idle
 // @grant        none
-// @updateURL    we'll see
-// @downloadURL  we'll see
+// @updateURL    https://github.com/kazmath/userscripts/raw/main/autoskipYoutube.user.js
+// @downloadURL  https://github.com/kazmath/userscripts/raw/main/autoskipYoutube.user.js
 // @noframes
 // ==/UserScript==
 
