@@ -9,7 +9,7 @@
 // @grant        none
 // @updateURL    https://github.com/kazmath/userscripts/raw/main/goToTerrariaOfficialWiki.user.js
 // @downloadURL  https://github.com/kazmath/userscripts/raw/main/goToTerrariaOfficialWiki.user.js
-// @run-at document-start
+// @run-at       document-start
 // @noframes
 // ==/UserScript==
 
@@ -19,5 +19,6 @@ const dontAsk = false;
 if (sessionStorage.getItem("triedOnce")) return;
 if (dontAsk || confirm("Go to official terraria wiki?")) {
     window.location.host = "terraria.wiki.gg";
+} else {
+    sessionStorage.setItem("triedOnce", true);
 }
-sessionStorage.setItem("triedOnce", true);
