@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Go to Terraria's official wiki page
 // @namespace    https://github.com/kazmath/
-// @version      1.1
+// @version      1.2
 // @description  Go to official terraria wiki, instead of old, community-driven wiki.
 // @author       kazmath
 // @match        *://terraria.fandom.com/*
