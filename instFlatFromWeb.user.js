@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Install flatpaks from the website
 // @namespace    https://github.com/kazmath/
-// @version      1.1
+// @version      1.1b
 // @description  Adds button to install flatpaks, instead of downloading refs. (Necessary to manually assign `flatpak:` protocol in browser settings or system registry)
 // @author       kazmath
 // @match        *://flathub.org/*
@@ -93,7 +93,7 @@ if (w.instFlatFromWeb) {
 
         setTimeout(function() {
             if (!w.instFlatFromWeb.onblurTriggered) {
-                alert("\"flatpak:\" protocol handler not supported");
+                alert("Custom script took too long to open.\n\nIs \"flatpak:\" protocol set up correctly? If it worked as expected, ignore this message.");
             }
             w.removeEventListener("blur", onBlurHandler); // Unregister the onBlur event
         }, 2000);
