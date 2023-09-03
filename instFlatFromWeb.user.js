@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Install flatpaks from the website
 // @namespace    https://github.com/kazmath/
-// @version      1.0
-// @description  Adds button to install flatpaks, instead of downloading refs. (Necessary to manually assign `flatpak:` protocol in browser settings or  systemregistry)
+// @version      1.1
+// @description  Adds button to install flatpaks, instead of downloading refs. (Necessary to manually assign `flatpak:` protocol in browser settings or system registry)
 // @author       kazmath
 // @match        *://flathub.org/*
 // @updateURL    https://github.com/kazmath/userscripts/raw/main/instFlatFromWeb.user.js
@@ -28,14 +28,19 @@ if (w.instFlatFromWeb) {
 
     function createButton() {
         let linkPath = w.location.pathname
-        let header_install = document.querySelectorAll("main > div > header")[0];
+        // let header_install = document.querySelectorAll("main > div > header")[0];
+        let hidden_panel = document.querySelectorAll("div[data-headlessui-state] > button ~ div")[0];
         let button_div = document.createElement("div");
         let button_a = document.createElement("a");
+        let button_h1 = document.createElement("h1");
         let button_icon = document.createElement("img");
 
-        button_div.classList.add("flex", "items-center", "justify-center", "gap-4");
+        button_div.classList.add(
+            "items-center",
+            "justify-center",
+            "gap-4"
+        );
         button_a.classList.add(
-            "w-11",
             "hover:opacity-75",
             "active:opacity-50",
             "bg-flathub-celestial-blue",
@@ -50,7 +55,7 @@ if (w.instFlatFromWeb) {
             "text-ellipsis",
             "whitespace-nowrap",
             "rounded-lg",
-            "px-5",
+            "px-2",
             "py-2",
             "text-center",
             "font-bold",
@@ -59,6 +64,7 @@ if (w.instFlatFromWeb) {
             "hover:cursor-pointer",
             "inst-flat-from-web-button"
         );
+        button_h1.innerHTML = "&nbsp;Click to Install Flatpak";
 
         button_a.href = "flatpak:" + linkPath.substring(linkPath.lastIndexOf("/")+1)
         button_a.addEventListener("click", launchLink);
@@ -71,8 +77,9 @@ if (w.instFlatFromWeb) {
         button_icon.style.width = "1.8em";
 
         button_a.appendChild(button_icon);
+        button_a.appendChild(button_h1);
         button_div.appendChild(button_a);
-        header_install.appendChild(button_div);
+        hidden_panel.appendChild(button_div);
     }
 
     function launchLink(event) {
@@ -114,6 +121,7 @@ if (w.instFlatFromWeb) {
     }
 
     w.instFlatFromWeb.intervalID = setInterval(repeatMain, 1000);
+    
 
     // if (w.instFlatFromWeb.firstRun || w.location.pathname.startsWith("/apps") && w.location.pathname.indexOf("/search") === -1) {
     //     createButton();
