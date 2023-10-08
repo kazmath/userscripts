@@ -23,7 +23,8 @@ if (w.autoskipIntervalID) {
 
     function main() {
         if (document.querySelector('.ytp-ad-player-overlay')) {
-            document.querySelector('video').currentTime = document.querySelector('video').duration;
+            document.querySelector('video').currentTime =
+				document.querySelector('video').duration;
         }
         if (document.querySelector("button.ytp-ad-skip-button")) {
             document.querySelector("button.ytp-ad-skip-button").click();
@@ -34,6 +35,10 @@ if (w.autoskipIntervalID) {
         if (document.querySelector(".ytp-ad-message-container")) {
             document.querySelector(".ytp-ad-message-container").remove();
         }
+		for (
+			elem of document.querySelectorAll('ytd-popup-container')
+		)
+			elem.remove()
         return;
     }
 }
