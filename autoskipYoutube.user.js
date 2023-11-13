@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Youtube AutoSkipAd
 // @namespace    https://github.com/kazmath/
-// @version      1.0
+// @version      1.1
 // @description  Skip Youtube video ads and pop-ups automatically as soon as it notices one active.
 // @author       KazMath
 // @match        *://*.youtube.com/*
