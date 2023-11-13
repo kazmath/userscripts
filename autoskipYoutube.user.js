@@ -29,6 +29,9 @@ if (w.autoskipIntervalID) {
         if (document.querySelector("button.ytp-ad-skip-button")) {
             document.querySelector("button.ytp-ad-skip-button").click();
         }
+        if (document.querySelector("button.ytp-ad-skip-button-modern")) {
+            document.querySelector("button.ytp-ad-skip-button-modern").click();
+        }
         if (document.querySelector(".ytp-ad-overlay-close-container")) {
             document.querySelector(".ytp-ad-overlay-close-container").click();
         }
