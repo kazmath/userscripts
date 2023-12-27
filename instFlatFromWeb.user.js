@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Install flatpaks from the website
 // @namespace    https://github.com/kazmath/
-// @version      1.1b
+// @version      1.2
 // @description  Adds button to install flatpaks, instead of downloading refs. (Necessary to manually assign `flatpak:` protocol in browser settings or system registry)
 // @author       kazmath
 // @match        *://flathub.org/*
@@ -9,7 +9,8 @@
 // @downloadURL  https://github.com/kazmath/userscripts/raw/main/instFlatFromWeb.user.js
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=flathub.org
 // @run-at       document-idle
-// @grant        none
+// @resource     flatpak_icon https://www.svgrepo.com/download/507477/apps.svg
+// @grant        GM_getResourceURL
 // ==/UserScript==
 
 'use strict';
@@ -71,8 +72,10 @@ if (w.instFlatFromWeb) {
         button_a.style.backgroundColor = "purple";
         // button_a.innerHTML = "Install<br/>on Machine";
 
-        button_icon.src = "https://www.svgrepo.com/download/507477/apps.svg";
-        button_icon.alt = "Install on machine";
+        (async function(button_icon) {
+            button_icon.src = await GM_getResourceURL("flatpak_icon");
+        })(button_icon)
+
         button_icon.style.maxWidth = "none";
         button_icon.style.width = "1.8em";
 
@@ -121,7 +124,7 @@ if (w.instFlatFromWeb) {
     }
 
     w.instFlatFromWeb.intervalID = setInterval(repeatMain, 1000);
-    
+
 
     // if (w.instFlatFromWeb.firstRun || w.location.pathname.startsWith("/apps") && w.location.pathname.indexOf("/search") === -1) {
     //     createButton();
