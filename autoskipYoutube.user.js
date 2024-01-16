@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Youtube AutoSkipAd
 // @namespace    https://github.com/kazmath/
-// @version      1.2
+// @version      1.3
 // @description  Skip Youtube video ads and pop-ups automatically as soon as it notices one active.
 // @author       KazMath
 // @match        *://*.youtube.com/*
@@ -37,6 +37,7 @@ if (w.autoskipIntervalID) {
         }
         if (document.querySelector("#dismiss-button")) {
             document.querySelector("#dismiss-button").click();
+            document.querySelector("#dismiss-button").remove();
         }
         if (document.querySelector(".ytp-ad-message-container")) {
             document.querySelector(".ytp-ad-message-container").remove();
