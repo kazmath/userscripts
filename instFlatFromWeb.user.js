@@ -2,7 +2,7 @@
 // @name         Install flatpaks from the website
 // @namespace    https://github.com/kazmath/
 // @version      1.2
-// @description  Adds button to install flatpaks, instead of downloading refs. (Necessary to manually assign `flatpak:` protocol in browser settings or system registry)
+// @description  Adds button to install flatpaks, instead of downloading refs. (Manual setup may be necessary)
 // @author       kazmath
 // @match        *://flathub.org/*
 // @updateURL    https://github.com/kazmath/userscripts/raw/main/instFlatFromWeb.user.js
@@ -67,7 +67,7 @@ if (w.instFlatFromWeb) {
         );
         button_h1.innerHTML = "&nbsp;Click to Install Flatpak";
 
-        button_a.href = "flatpak:" + linkPath.substring(linkPath.lastIndexOf("/")+1)
+        button_a.href = "appstream:" + linkPath.substring(linkPath.lastIndexOf("/")+1)
         button_a.addEventListener("click", launchLink);
         button_a.style.backgroundColor = "purple";
         // button_a.innerHTML = "Install<br/>on Machine";
@@ -96,7 +96,7 @@ if (w.instFlatFromWeb) {
 
         setTimeout(function() {
             if (!w.instFlatFromWeb.onblurTriggered) {
-                alert("Custom script took too long to open.\n\nIs \"flatpak:\" protocol set up correctly? If it worked as expected, ignore this message.");
+                alert("Custom script took too long to open.\n\nIs \"appstream:\" protocol set up correctly? If it worked as expected, ignore this message.");
             }
             w.removeEventListener("blur", onBlurHandler); // Unregister the onBlur event
         }, 2000);
@@ -117,7 +117,7 @@ if (w.instFlatFromWeb) {
                 createButton();
             } else {
                 let linkPath = w.location.pathname;
-                document.querySelectorAll(".inst-flat-from-web-button")[0].href = "flatpak:" + linkPath.substring(linkPath.lastIndexOf("/")+1);
+                document.querySelectorAll(".inst-flat-from-web-button")[0].href = "appstream:" + linkPath.substring(linkPath.lastIndexOf("/")+1);
             }
         }
         w.instFlatFromWeb.currentLocationPath = w.location.pathname;
