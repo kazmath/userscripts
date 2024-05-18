@@ -15,38 +15,38 @@
 // ==/UserScript==
 
 'use strict';
-const w = window;
+const w = window
 if (w.autoskipIntervalID) {
-    return;
+	return
 } else {
-    w.autoskipIntervalID = setInterval(main,100);
+	w.autoskipIntervalID = setInterval(main, 100)
 
-    function main() {
-        if (document.querySelector('.ytp-ad-player-overlay')) {
-            document.querySelector('video').currentTime =
-				document.querySelector('video').duration;
-        }
-        if (document.querySelector("button.ytp-ad-skip-button")) {
-            document.querySelector("button.ytp-ad-skip-button").click();
-        }
-        if (document.querySelector("button.ytp-ad-skip-button-modern")) {
-            document.querySelector("button.ytp-ad-skip-button-modern").click();
-        }
-        if (document.querySelector(".ytp-ad-overlay-close-container")) {
-            document.querySelector(".ytp-ad-overlay-close-container").click();
-        }
-        if (document.querySelector("#dismiss-button")) {
-            document.querySelector("#dismiss-button").click();
-            document.querySelector("#dismiss-button").remove();
-        }
-        if (document.querySelector(".ytp-ad-message-container")) {
-            document.querySelector(".ytp-ad-message-container").remove();
-        }
+	function main() {
+		if (document.querySelector("button.ytp-ad-skip-button")) {
+			document.querySelector("button.ytp-ad-skip-button").click()
+		}
+		if (document.querySelector("button.ytp-ad-skip-button-modern")) {
+			document.querySelector("button.ytp-ad-skip-button-modern").click()
+		}
+		if (document.querySelector(".ytp-ad-overlay-close-container")) {
+			document.querySelector(".ytp-ad-overlay-close-container").click()
+		}
+		if (document.querySelector("#dismiss-button")) {
+			document.querySelector("#dismiss-button").click()
+			document.querySelector("#dismiss-button").remove()
+		}
+		if (document.querySelector(".ytp-ad-message-container")) {
+			document.querySelector(".ytp-ad-message-container").remove()
+		}
+		if (document.querySelector('.ad-showing')) {
+			document.querySelector('video').currentTime =
+				document.querySelector('video').duration
+		}
 		// for (
 		// 	let elem of document.querySelectorAll('ytd-popup-container')
 		// ) {
 		// 	elem.remove()
 		// }
-        return;
-    }
+		return
+	}
 }
