@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Youtube AutoSkipAd
 // @namespace    https://github.com/kazmath/
-// @version      1.4.1
+// @version      1.4.2
 // @description  Skip Youtube video ads and pop-ups automatically as soon as it notices one active.
 // @author       KazMath
 // @match        *://*.youtube.com/*
@@ -38,11 +38,12 @@ if (w.autoskipIntervalID) {
 		if (document.querySelector(".ytp-ad-message-container")) {
 			document.querySelector(".ytp-ad-message-container").remove()
 		}
-		if (document.querySelector("tp-yt-iron-overlay-backdrop")) {
-			document.querySelector('tp-yt-iron-overlay-backdrop').classList.remove("opened")
-			document.querySelector('tp-yt-iron-overlay-backdrop').classList.add("closed")
-			document.querySelector('tp-yt-paper-dialog').remove()
-		}
+		// FIXME: Should close adblockerblocker, but breaks other overlays
+		// if (document.querySelector("tp-yt-iron-overlay-backdrop")) {
+		// 	document.querySelector('tp-yt-iron-overlay-backdrop').classList.remove("opened")
+		// 	document.querySelector('tp-yt-iron-overlay-backdrop').classList.add("closed")
+		// 	document.querySelector('tp-yt-paper-dialog').remove()
+		// }
 		if (document.querySelector('.ad-showing')) {
 			document.querySelector('video').currentTime =
 				document.querySelector('video').duration
