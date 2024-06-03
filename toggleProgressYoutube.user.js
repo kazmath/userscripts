@@ -9,17 +9,14 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=youtube.com
 // @run-at       document-idle
 // @grant        none
-// @updateURL    https://github.com/kazmath/userscripts/raw/main/hideUnhidePBar.user.js
-// @downloadURL  https://github.com/kazmath/userscripts/raw/main/hideUnhidePBar.user.js
+// @updateURL    https://github.com/kazmath/userscripts/raw/main/toggleProgressYoutube.user.js
+// @downloadURL  https://github.com/kazmath/userscripts/raw/main/toggleProgressYoutube.user.js
 // @noframes
 // ==/UserScript==
 
-/* GM_setValue("someKey", "someData");
-GM_setValue("someKey", "someData"); */
-
 'use strict';
 const w = window
-if (w.hideUnhidePBar) {
+if (w.toggleProgressYoutube) {
 
     console.log("[Hide/Unhide Progress] Could not start userscript: Already running.")
     return
@@ -44,5 +41,5 @@ if (w.hideUnhidePBar) {
         pBar[0].toggleAttribute("hidden") ? (currTime[0].style = blurryTextWhiteStyle) : (currTime[0].style = "")
     })
 
-    w.hideUnhidePBar = true
+    w.toggleProgressYoutube = true
 }
