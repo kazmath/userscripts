@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Youtube AutoSkipAd
 // @namespace    https://github.com/kazmath/
-// @version      1.4.2
+// @version      1.5.0
 // @description  Skip Youtube video ads and pop-ups automatically as soon as it notices one active.
 // @author       KazMath
 // @match        *://*.youtube.com/*
@@ -38,21 +38,19 @@ if (w.autoskipIntervalID) {
 		if (document.querySelector(".ytp-ad-message-container")) {
 			document.querySelector(".ytp-ad-message-container").remove()
 		}
-		// FIXME: Should close adblockerblocker, but breaks other overlays
-		// if (document.querySelector("tp-yt-iron-overlay-backdrop")) {
-		// 	document.querySelector('tp-yt-iron-overlay-backdrop').classList.remove("opened")
-		// 	document.querySelector('tp-yt-iron-overlay-backdrop').classList.add("closed")
-		// 	document.querySelector('tp-yt-paper-dialog').remove()
-		// }
+		if (document.querySelector('yt-mealbar-promo-renderer')) {
+			document.querySelector('yt-mealbar-promo-renderer').remove()
+		}
+		if (document.querySelector("ytd-enforcement-message-view-model")) {
+			document.querySelector('tp-yt-iron-overlay-backdrop').classList.remove("opened")
+			document.querySelector('tp-yt-iron-overlay-backdrop').classList.add("closed")
+			document.querySelector('ytd-enforcement-message-view-model').remove()
+			document.querySelector('video').play()
+		}
 		if (document.querySelector('.ad-showing')) {
 			document.querySelector('video').currentTime =
 				document.querySelector('video').duration
 		}
-		// for (
-		// 	let elem of document.querySelectorAll('ytd-popup-container')
-		// ) {
-		// 	elem.remove()
-		// }
 		return
 	}
 }
