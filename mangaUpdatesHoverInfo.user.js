@@ -75,6 +75,7 @@ async function main() {
 async function fetchCover(ev) {
     const el = ev.currentTarget;
     if (el.classList.contains("done-hover-info")) return;
+    el.removeAttribute("title");
     el.classList.add("done-hover-info");
     el.style.display = "inline-flex";
 
@@ -82,10 +83,19 @@ async function fetchCover(ev) {
     spinnerHoverInfo.className = "spinner-hover-info";
     el.appendChild(spinnerHoverInfo);
 
+    let error = false;
     const r = await GM.xmlHttpRequest({
         method: "GET",
         url: el.href,
+        onerror: (res) => {
+            console.error(res);
+            el.classList.remove("done-hover-info");
+            el.style.removeProperty("display");
+            spinnerHoverInfo.remove();
+            error = true;
+        },
     });
+    if (error) return;
 
     const doc = new DOMParser().parseFromString(r.responseText, "text/html");
 
