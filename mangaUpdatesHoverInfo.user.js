@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaUpdates Info on Hover
 // @namespace    https://github.com/kazmath/
-// @version      1.0
+// @version      1.1
 // @description  Series details on link hover for BakaMangaUpdates
 // @author       kazmath
 // @match        *://www.mangaupdates.com/*
@@ -33,19 +33,23 @@ async function main() {
             align-items: flex-start;
             position: absolute;
             border: 4px solid black;
-            background: #555;
+            margin-left: 5em;
+            background: var(--bs-secondary-bg);
             padding: .25em;
             z-index: 999;
+            color: var(--mu-text-color);
         }
 
         .hover-info .description-hover-info {
             overflow-y: auto;
+            overflow-x: auto;
+            min-width: 13em;
             max-height: 50vh;
-            width: 15vw
+            width: 15vw;
+            padding-right: .25em;
         }
         .hover-info .image-hover-info {
             height: 50vh;
-            width: 15vw
         }
     `);
     GM_addStyle(`
@@ -53,8 +57,8 @@ async function main() {
             display: inline-block;
             width: 1em;
             height: 1em;
-            border: 3px solid #ccc;
-            border-top-color: #000;
+            border: 3px solid var(--mu-text-color);
+            border-top-color: var(--bs-secondary-bg);
             border-radius: 50%;
             animation: spin-hover-info 0.8s linear infinite;
         }
@@ -62,31 +66,10 @@ async function main() {
             to { transform: rotate(360deg); }
         }
     `);
-    // content: attr(data-tooltip);
 
     linkElms.forEach((el) => {
         el.addEventListener("mouseover", fetchCover);
     });
-
-    // for (const el of linkElms) {
-    //     await fetchCover(el);
-    //     // el.setAttribute("data-tooltip", imageSrc);
-
-    //     // Wait a bit
-    //     await new Promise((r) => setTimeout(r, 500));
-    // }
-
-    // linkElms.forEach(async function (el) {
-    //     const html = await fetch(el.href).then((r) => r.text());
-    //     const doc = new DOMParser().parseFromString(html, "text/html");
-    //     const imageSrc = doc.querySelector(
-    //         'div[data-cy="info-box-image"] div img'
-    //     ).src;
-    //     // const description = doc.querySelector(
-    //     //     'div[data-cy="info-box-description"] div div'
-    //     // ).innerHTML;
-    //     el.attributes["data-tooltip"] = imageSrc;
-    // });
 }
 
 async function fetchCover(ev) {
@@ -109,9 +92,29 @@ async function fetchCover(ev) {
     const imageSrc = doc.querySelector(
         'div[data-cy="info-box-image"] div img'
     ).src;
-    const description = doc.querySelector(
-        'div[data-cy="info-box-description"] div div'
-    ).innerHTML;
+    const description = [
+        // title
+        "<b>",
+        doc.querySelector("span.releasestitle.tabletitle").innerHTML,
+        "</b>",
+        '<hr style="border-top: 3px solid #bbb"/>',
+
+        // description
+        doc.querySelector('div[data-cy="info-box-description-header"] b')
+            .outerHTML,
+        doc.querySelector('div[data-cy="info-box-description"] div div')
+            .outerHTML,
+        '<hr style="border-top: 3px solid #bbb"/>',
+
+        // type
+        doc.querySelector('div[data-cy="info-box-type-header"] b').outerHTML,
+        doc.querySelector('div[data-cy="info-box-type"]').outerHTML,
+        '<hr style="border-top: 3px solid #bbb"/>',
+
+        // status
+        doc.querySelector('div[data-cy="info-box-status-header"] b').outerHTML,
+        doc.querySelector('div[data-cy="info-box-status"]').outerHTML,
+    ].join("");
     const hoverInfoEl = document.createElement("div");
     hoverInfoEl.className = "hover-info";
     hoverInfoEl.style.display = "none";
