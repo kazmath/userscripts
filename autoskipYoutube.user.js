@@ -3,7 +3,7 @@
 // @namespace    https://github.com/kazmath/
 // @version      1.5.0
 // @description  Skip Youtube video ads and pop-ups automatically as soon as it notices one active.
-// @author       KazMath
+// @author       kazmath
 // @match        *://*.youtube.com/*
 // @exclude      *://*.youtube.com/embed/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=youtube.com

@@ -3,7 +3,7 @@
 // @namespace    https://github.com/kazmath/
 // @version      1.1
 // @description  Enable/Disable progress bar and tmiestamp on YouTube videos at will with H key, in case you don't want to spoil yourself about when the video will end.
-// @author       KazMath
+// @author       kazmath
 // @match        *://*.youtube.com/*
 // @exclude      *://*.youtube.com/embed/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=youtube.com
