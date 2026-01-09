@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaUpdates Info on Hover
 // @namespace    https://github.com/kazmath/
-// @version      1.2
+// @version      1.3
 // @description  Series details on link hover for BakaMangaUpdates
 // @author       kazmath
 // @match        *://www.mangaupdates.com/*
@@ -22,6 +22,7 @@ async function main() {
         (link) =>
             link.href.includes("www.mangaupdates.com/series/") &&
             !link.href.endsWith("#") &&
+            !link.href.includes("advanced-search") &&
             !link.hasAttribute("data-tooltip")
     );
     if (linkElms.length == 0) return;
