@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaUpdates Info on Hover
 // @namespace    https://github.com/kazmath/
-// @version      1.4
+// @version      1.5
 // @description  Series details on link hover for BakaMangaUpdates
 // @author       kazmath
 // @match        *://www.mangaupdates.com/*
@@ -14,6 +14,10 @@
 // ==/UserScript==
 
 "use strict";
+
+const cachedPages = {};
+let mousePosX;
+let mousePosY;
 
 main();
 
@@ -29,17 +33,20 @@ async function main() {
     if (linkElms.length == 0) return;
 
     GM_addStyle(`
-        a:hover + .hover-info, .hover-info:hover {
+        a:hover + .hover-info, .hover-info.pinned-hover-info/*, .hover-info:hover */ {
             display: flex !important;
             flex-direction: row;
             align-items: flex-start;
             position: absolute;
             border: 4px solid black;
-            margin-left: 5em;
             background: var(--bs-secondary-bg);
             padding: .25em;
             z-index: 999;
             color: var(--mu-text-color);
+        }
+
+        .hover-info.pinned-hover-info {
+            z-index: 998;
         }
 
         .hover-info .description-hover-info {
@@ -69,6 +76,54 @@ async function main() {
         }
     `);
 
+    document.addEventListener("mousemove", (ev) => {
+        mousePosX = ev.clientX;
+        mousePosY = ev.clientY;
+    });
+    document.addEventListener(
+        "keyup",
+        (ev) => {
+            if (ev.code == "KeyL" && ev.ctrlKey && ev.shiftKey) {
+                ev.preventDefault();
+
+                const hoveredElement = document.elementFromPoint(
+                    mousePosX,
+                    mousePosY
+                );
+                if (
+                    hoveredElement.parentElement == null ||
+                    !hoveredElement.parentElement.classList.contains(
+                        "done-hover-info"
+                    )
+                ) {
+                    document
+                        .querySelectorAll(".pinned-hover-info")
+                        .forEach((el) => {
+                            el.classList.remove("pinned-hover-info");
+                        });
+                    return;
+                }
+
+                const elList =
+                    hoveredElement.parentElement.parentElement.querySelectorAll(
+                        ".hover-info"
+                    );
+
+                if (elList.length != 1) return;
+                const el = elList[0];
+
+                if (el.classList.contains("pinned-hover-info")) {
+                    el.classList.remove("pinned-hover-info");
+                } else {
+                    el.classList.add("pinned-hover-info");
+                }
+            }
+        },
+        {
+            passive: false,
+        }
+    );
+
     linkElms.forEach((el) => {
         el.addEventListener("mouseover", fetchCover);
     });
@@ -86,46 +141,74 @@ async function fetchCover(ev) {
     el.appendChild(spinnerHoverInfo);
 
     let error = false;
-    const r = await GM.xmlHttpRequest({
-        method: "GET",
-        url: el.href,
-        onerror: (res) => {
-            console.error(res);
-            el.classList.remove("done-hover-info");
-            el.style.removeProperty("display");
-            spinnerHoverInfo.remove();
-            error = true;
-        },
-    });
+    const req =
+        cachedPages[el.href] != null
+            ? cachedPages[el.href]
+            : (cachedPages[el.href] = GM.xmlHttpRequest({
+                  method: "GET",
+                  url: el.href,
+                  onerror: (res) => {
+                      console.error(res);
+                      el.classList.remove("done-hover-info");
+                      el.style.removeProperty("display");
+                      spinnerHoverInfo.remove();
+                      error = true;
+                  },
+              }));
+    const res = await req;
     if (error) return;
 
-    const doc = new DOMParser().parseFromString(r.responseText, "text/html");
+    const doc = new DOMParser().parseFromString(res.responseText, "text/html");
 
     const imageSrc = doc.querySelector(
         'div[data-cy="info-box-image"] div img'
     ).src;
     const description = [
         // title
-        "<b>",
+        "<h3>",
         doc.querySelector("span.releasestitle.tabletitle").innerHTML,
-        "</b>",
-        '<hr style="border-top: 3px solid #bbb"/>',
+        "</h3>",
+        "<hr/>",
+
+        // genres
+        doc.querySelector('[data-cy="info-box-genres-header"] b').outerHTML,
+        "<br/>",
+        [...doc.querySelectorAll('[data-cy="info-box-genres"] > span')]
+            .map((el) => el.outerHTML)
+            .join(""),
+        "<hr/>",
+
+        // type
+        doc.querySelector('div[data-cy="info-box-type-header"] b').outerHTML,
+        doc.querySelector('div[data-cy="info-box-type"]').outerHTML,
+        "<hr/>",
+
+        // status
+        doc.querySelector('div[data-cy="info-box-status-header"] b').outerHTML,
+        doc.querySelector('div[data-cy="info-box-status"]').outerHTML,
+        "<hr/>",
+
+        // my reading progress
+        doc.querySelectorAll("#chap-links").length > 0
+            ? [
+                  "<b>Progress</b>",
+                  "<br/>",
+                  ...[
+                      ...doc.querySelectorAll(
+                          "#chap-links > span > div:nth-child(2) > :nth-child(-n + 2)"
+                      ),
+                  ]
+                      .map((el) => el.outerHTML)
+                      .join(" "),
+                  "<hr/>",
+              ].join("")
+            : "",
 
         // description
         doc.querySelector('div[data-cy="info-box-description-header"] b')
             .outerHTML,
         doc.querySelector('div[data-cy="info-box-description"] div div')
             .outerHTML,
-        '<hr style="border-top: 3px solid #bbb"/>',
-
-        // type
-        doc.querySelector('div[data-cy="info-box-type-header"] b').outerHTML,
-        doc.querySelector('div[data-cy="info-box-type"]').outerHTML,
-        '<hr style="border-top: 3px solid #bbb"/>',
-
-        // status
-        doc.querySelector('div[data-cy="info-box-status-header"] b').outerHTML,
-        doc.querySelector('div[data-cy="info-box-status"]').outerHTML,
     ].join("");
     const hoverInfoEl = document.createElement("div");
     hoverInfoEl.className = "hover-info";
@@ -134,6 +217,15 @@ async function fetchCover(ev) {
     const descHoverInfoEl = document.createElement("div");
     descHoverInfoEl.className = "description-hover-info";
     descHoverInfoEl.innerHTML = description;
+    descHoverInfoEl
+        .querySelectorAll("hr")
+        .forEach((el) => (el.style.borderTop = "3px solid #bbb"));
+    descHoverInfoEl
+        .querySelectorAll("h3")
+        .forEach((el) => (el.style.margin = "0"));
+    descHoverInfoEl.querySelectorAll("[href='#']").forEach((innerEl) => {
+        innerEl.href = el.href;
+    });
 
     const imgHoverInfoEl = document.createElement("img");
     imgHoverInfoEl.className = "image-hover-info";
@@ -141,6 +233,24 @@ async function fetchCover(ev) {
 
     hoverInfoEl.appendChild(descHoverInfoEl);
     hoverInfoEl.appendChild(imgHoverInfoEl);
+
+    el.addEventListener(
+        "wheel",
+        (ev) => {
+            if (ev.ctrlKey) {
+                ev.preventDefault();
+
+                const sensitivity = 1;
+                descHoverInfoEl.scrollBy({
+                    top: -(ev.wheelDeltaY * sensitivity),
+                    behavior: "smooth",
+                });
+            }
+        },
+        {
+            passive: false,
+        }
+    );
 
     spinnerHoverInfo.remove();
     el.style.removeProperty("display");
