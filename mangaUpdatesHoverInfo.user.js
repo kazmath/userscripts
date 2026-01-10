@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaUpdates Info on Hover
 // @namespace    https://github.com/kazmath/
-// @version      1.6
+// @version      1.7
 // @description  Series details on link hover for BakaMangaUpdates
 // @author       kazmath
 // @match        *://www.mangaupdates.com/*
@@ -18,14 +18,23 @@
 const cachedPages = {};
 let mousePosX;
 let mousePosY;
+let pageURL = document.location.toString();
 
 main();
 
+setInterval(() => {
+    const currentURL = document.location.toString();
+    if (currentURL != pageURL) {
+        main();
+        pageURL = currentURL;
+    }
+}, 2000);
+
 async function main() {
-    var linkElms = [...document.querySelectorAll("a")].filter((link) => {
+    let linkElms = [...document.querySelectorAll("a")].filter((link) => {
         return (
             link.href.match(
-                /^https?:\/\/www\.mangaupdates\.com\/series\/[a-zA-Z0-9]+\/[^#]+$/
+                /^https?:\/\/www\.mangaupdates\.com\/series\/[a-zA-Z0-9]+\/[^#?]+$/
             ) != null && //
             !link.hasAttribute("data-tooltip")
         );
