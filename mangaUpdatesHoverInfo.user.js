@@ -255,4 +255,6 @@ async function fetchCover(ev) {
     spinnerHoverInfo.remove();
     el.style.removeProperty("display");
     el.after(hoverInfoEl);
+
+    descHoverInfoEl.scrollTo(0, 0);
 }
