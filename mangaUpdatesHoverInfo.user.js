@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaUpdates Info on Hover
 // @namespace    https://github.com/kazmath/
-// @version      1.8
+// @version      1.9
 // @description  Series details on link hover for BakaMangaUpdates
 // @author       kazmath
 // @match        *://www.mangaupdates.com/*
@@ -19,8 +19,120 @@ const cachedPages = {};
 let mousePosX;
 let mousePosY;
 let pageURL = document.location.toString();
+let linkElms = [];
 
 main();
+
+document.addEventListener("mousemove", (ev) => {
+    mousePosX = ev.clientX;
+    mousePosY = ev.clientY;
+});
+document.addEventListener(
+    "keyup",
+    async (ev) => {
+        if (ev.code == "KeyL" && ev.ctrlKey && ev.shiftKey) {
+            ev.preventDefault();
+
+            const hoveredElement = document.elementFromPoint(
+                mousePosX,
+                mousePosY
+            );
+            if (
+                hoveredElement.parentElement == null ||
+                !hoveredElement.parentElement.classList.contains(
+                    "done-hover-info"
+                )
+            ) {
+                document
+                    .querySelectorAll(".pinned-hover-info")
+                    .forEach((el) => {
+                        el.classList.remove("pinned-hover-info");
+                    });
+                return;
+            }
+
+            const elList =
+                hoveredElement.parentElement.parentElement.querySelectorAll(
+                    ".hover-info"
+                );
+
+            if (elList.length != 1) return;
+            const el = elList[0];
+
+            if (el.classList.contains("pinned-hover-info")) {
+                el.classList.remove("pinned-hover-info");
+            } else {
+                el.classList.add("pinned-hover-info");
+            }
+        }
+        if (ev.code == "KeyL" && ev.altKey && ev.shiftKey) {
+            if (document.querySelector("#global-spinner-hover-info") != null) {
+                return;
+            }
+
+            ev.preventDefault();
+
+            const spinnerHoverInfo = document.createElement("a");
+            spinnerHoverInfo.className = "spinner-hover-info";
+            spinnerHoverInfo.id = "global-spinner-hover-info";
+            spinnerHoverInfo.title =
+                "Loading all manga details in this page (Click here to cancel)";
+            spinnerHoverInfo.href = "#";
+            spinnerHoverInfo.onclick = (ev) =>
+                ev.currentTarget.classList.add("cancelling-spinner-hover-info");
+            document.querySelector("body").appendChild(spinnerHoverInfo);
+
+            const linkElmsFiltered = linkElms.filter((el) => {
+                if (!el.checkVisibility()) return false;
+                if (el.classList.contains("done-hover-info")) return false;
+                return true;
+            });
+            let requestsMade = 0;
+            let concurrentReqs = [];
+            for (let index = 0; index < linkElmsFiltered.length; index++) {
+                const element = linkElmsFiltered[index];
+                const thisReq = new Promise(async (executor) => {
+                    await fetchCover(element, false);
+                    executor();
+                });
+                let thisBool = false;
+                concurrentReqs.push([thisReq, thisBool]);
+                thisReq.then((_) => {
+                    thisBool = true;
+                    requestsMade++;
+                    console.log(
+                        `Done ${requestsMade}/${linkElmsFiltered.length} requests.`
+                    );
+                });
+
+                concurrentReqs = concurrentReqs.filter((value) => !value[1]);
+                if (concurrentReqs.length >= 10) {
+                    await Promise.allSettled(concurrentReqs.map((it) => it[0]));
+
+                    concurrentReqs = [];
+                }
+
+                if (
+                    document.querySelector("#global-spinner-hover-info") ==
+                        null ||
+                    document.querySelector(".cancelling-spinner-hover-info") !=
+                        null
+                ) {
+                    break;
+                }
+            }
+            await Promise.allSettled(concurrentReqs.map((it) => it[0]));
+            document
+                .querySelectorAll(
+                    "#global-spinner-hover-info, .cancelling-spinner-hover-info"
+                )
+                .forEach((el) => el.remove());
+        }
+    },
+    {
+        passive: false,
+    }
+);
 
 setInterval(() => {
     const currentURL = document.location.toString();
@@ -31,13 +143,19 @@ setInterval(() => {
 }, 2000);
 
 async function main() {
-    let linkElms = [...document.querySelectorAll("a")].filter((link) => {
-        return (
+    linkElms = [...document.querySelectorAll("a")].filter((link) => {
+        if (!link.checkVisibility()) return false;
+        if (
             link.href.match(
                 /^https?:\/\/www\.mangaupdates\.com\/series\/[a-zA-Z0-9]+\/[^#?]+$/
-            ) != null && //
-            !link.hasAttribute("data-tooltip")
-        );
+            ) == null
+        ) {
+            return false;
+        }
+        if (link.hasAttribute("data-tooltip")) return false;
+        if (link.innerText.length <= 0) return false;
+
+        return true;
     });
     if (linkElms.length == 0) return;
 
@@ -67,6 +185,8 @@ async function main() {
         }
         .hover-info .image-hover-info {
             height: 50vh;
+            max-width: 25vw;
+            object-fit: contain;
         }
     `);
     GM_addStyle(`
@@ -79,66 +199,31 @@ async function main() {
             border-radius: 50%;
             animation: spin-hover-info 0.8s linear infinite;
         }
+        .spinner-hover-info.cancelling-spinner-hover-info {
+            border: 3px solid var(--bs-danger);
+            border-top-color: var(--bs-secondary-bg);
+        }
+
+        #global-spinner-hover-info {
+            bottom: 0;
+            right: 0;
+            width: 3em;
+            height: 3em;
+            position: fixed;
+        }
+
         @keyframes spin-hover-info {
             to { transform: rotate(360deg); }
         }
     `);
-
-    document.addEventListener("mousemove", (ev) => {
-        mousePosX = ev.clientX;
-        mousePosY = ev.clientY;
-    });
-    document.addEventListener(
-        "keyup",
-        (ev) => {
-            if (ev.code == "KeyL" && ev.ctrlKey && ev.shiftKey) {
-                ev.preventDefault();
-
-                const hoveredElement = document.elementFromPoint(
-                    mousePosX,
-                    mousePosY
-                );
-                if (
-                    hoveredElement.parentElement == null ||
-                    !hoveredElement.parentElement.classList.contains(
-                        "done-hover-info"
-                    )
-                ) {
-                    document
-                        .querySelectorAll(".pinned-hover-info")
-                        .forEach((el) => {
-                            el.classList.remove("pinned-hover-info");
-                        });
-                    return;
-                }
-
-                const elList =
-                    hoveredElement.parentElement.parentElement.querySelectorAll(
-                        ".hover-info"
-                    );
-
-                if (elList.length != 1) return;
-                const el = elList[0];
-
-                if (el.classList.contains("pinned-hover-info")) {
-                    el.classList.remove("pinned-hover-info");
-                } else {
-                    el.classList.add("pinned-hover-info");
-                }
-            }
-        },
-        {
-            passive: false,
-        }
-    );
 
     linkElms.forEach((el) => {
         el.addEventListener("mouseover", fetchCover);
     });
 }
 
-async function fetchCover(ev) {
-    const el = ev.currentTarget;
+async function fetchCover(arg, fromEvent = true) {
+    const el = fromEvent ? arg.currentTarget : arg;
     if (el.classList.contains("done-hover-info")) return;
     el.removeAttribute("title");
     el.classList.add("done-hover-info");
@@ -171,6 +256,7 @@ async function fetchCover(ev) {
     const imageSrc = doc.querySelector(
         'div[data-cy="info-box-image"] div img'
     ).src;
+    // todo: implement "show more" feature
     const description = [
         // title
         "<h3>",
@@ -208,6 +294,14 @@ async function fetchCover(ev) {
         doc.querySelector('div[data-cy="info-box-status-header"] b').outerHTML,
         "</div>",
         doc.querySelector('div[data-cy="info-box-status"]').outerHTML,
+        "<hr/>",
+
+        // alternative names
+        '<div class="header-hover-info">',
+        doc.querySelector('div[data-cy="info-box-associated-header"] b')
+            .outerHTML,
+        "</div>",
+        doc.querySelector('div[data-cy="info-box-associated"]').outerHTML,
         "<hr/>",
 
         // my reading progress
