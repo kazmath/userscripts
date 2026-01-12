@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaUpdates Info on Hover
 // @namespace    https://github.com/kazmath/
-// @version      1.7
+// @version      1.8
 // @description  Series details on link hover for BakaMangaUpdates
 // @author       kazmath
 // @match        *://www.mangaupdates.com/*
@@ -60,7 +60,6 @@ async function main() {
 
         .hover-info .description-hover-info {
             overflow-y: auto;
-            overflow-x: auto;
             min-width: 13em;
             max-height: 50vh;
             width: 15vw;
@@ -180,28 +179,41 @@ async function fetchCover(ev) {
         "<hr/>",
 
         // genres
+        '<div class="header-hover-info">',
         doc.querySelector('[data-cy="info-box-genres-header"] b').outerHTML,
-        "<br/>",
+        "</div>",
+        "<p>",
         [...doc.querySelectorAll('[data-cy="info-box-genres"] > span')]
+            .map((el) => {
+                el.querySelector("a").innerHTML = el
+                    .querySelector("a")
+                    .querySelector("u").outerHTML;
+                el.innerHTML = el.querySelector("a").outerHTML;
+                return el;
+            })
             .map((el) => el.outerHTML)
-            .join(""),
+            .join(" "),
+        "</p>",
         "<hr/>",
 
         // type
+        '<div class="header-hover-info">',
         doc.querySelector('div[data-cy="info-box-type-header"] b').outerHTML,
+        "</div>",
         doc.querySelector('div[data-cy="info-box-type"]').outerHTML,
         "<hr/>",
 
         // status
+        '<div class="header-hover-info">',
         doc.querySelector('div[data-cy="info-box-status-header"] b').outerHTML,
+        "</div>",
         doc.querySelector('div[data-cy="info-box-status"]').outerHTML,
         "<hr/>",
 
         // my reading progress
         doc.querySelectorAll("#chap-links").length > 0
             ? [
-                  "<b>Progress</b>",
-                  "<br/>",
+                  '<div class="header-hover-info"><b>Progress</b></div>',
                   ...[
                       ...doc.querySelectorAll(
                           "#chap-links > span > div:nth-child(2) > :nth-child(-n + 2)"
@@ -214,8 +226,10 @@ async function fetchCover(ev) {
             : "",
 
         // description
+        '<div class="header-hover-info">',
         doc.querySelector('div[data-cy="info-box-description-header"] b')
             .outerHTML,
+        "</div>",
         doc.querySelector('div[data-cy="info-box-description"] div div')
             .outerHTML,
     ].join("");
@@ -226,12 +240,20 @@ async function fetchCover(ev) {
     const descHoverInfoEl = document.createElement("div");
     descHoverInfoEl.className = "description-hover-info";
     descHoverInfoEl.innerHTML = description;
-    descHoverInfoEl
-        .querySelectorAll("hr")
-        .forEach((el) => (el.style.borderTop = "3px solid #bbb"));
+    descHoverInfoEl.querySelectorAll("hr").forEach((el) => {
+        el.style.borderTop = "3px solid #bbb";
+        el.style.margin = ".5em 0";
+    });
     descHoverInfoEl
         .querySelectorAll("h3")
         .forEach((el) => (el.style.margin = "0"));
+    descHoverInfoEl
+        .querySelectorAll("p")
+        .forEach((el) => (el.style.margin = "0"));
+    descHoverInfoEl.querySelectorAll(".header-hover-info").forEach((el) => {
+        el.style.border = "1px solid #bbb";
+        el.style.marginBottom = ".5em";
+    });
     descHoverInfoEl.querySelectorAll("[href='#']").forEach((innerEl) => {
         innerEl.href = el.href;
     });
